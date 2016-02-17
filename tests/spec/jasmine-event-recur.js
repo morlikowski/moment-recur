@@ -316,6 +316,16 @@ describe("Future Dates", function() {
         expect(nextDates[1]).toBe("02/08/2014");
         expect(nextDates[2]).toBe("02/10/2014");
     });
+
+    it("are not generated after the end date", function() {
+        var recurrence, nextDates;
+        recurrence = moment("01/01/2014").recur().every(2).days();
+        recurrence.endDate("01/05/2014");
+        nextDates = recurrence.next(3, "L");
+        expect(nextDates.length).toBe(2);
+        expect(nextDates[0]).toBe('01/03/2014');
+        expect(nextDates[1]).toBe('01/05/2014');
+    });
 });
 
 describe("Previous Dates", function() {
