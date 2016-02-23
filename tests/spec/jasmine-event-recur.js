@@ -134,6 +134,13 @@ describe("An interval", function() {
         expect(recurrence.matches(after)).toBe(false);
     });
 
+    it("should not match a date after the end date, if it was set with method chaining", function() {
+        var start = moment(startDate);
+        var after = moment(endDate).add(1, "day");
+        var recurrence = start.recur().every(1, "day").endDate(endDate);
+        expect(recurrence.matches(after)).toBe(false);
+    });
+
     it("can be daily", function() {
         var recurrence = moment(startDate).recur().every(2).days();
         expect(recurrence.matches( moment(startDate).add(2, "days") )).toBe(true);
@@ -326,6 +333,16 @@ describe("Future Dates", function() {
         expect(nextDates[0]).toBe('01/03/2014');
         expect(nextDates[1]).toBe('01/05/2014');
     });
+
+    it("are not generated after the end date if it was set with method chaining", function() {
+        var recurrence, nextDates;
+        recurrence = moment("01/01/2014").recur().every(2).days().endDate("01/05/2014");
+        nextDates = recurrence.next(3, "L");
+        expect(nextDates.length).toBe(2);
+        expect(nextDates[0]).toBe('01/03/2014');
+        expect(nextDates[1]).toBe('01/05/2014');
+    });
+
 });
 
 describe("Previous Dates", function() {
@@ -450,12 +467,31 @@ describe("Options", function() {
 
     it("shold be exportable", function() {
         var recurrence = moment("01/01/2014").recur("12/31/2014").every(2, "days").except("01/05/2014");
+
         var data = recurrence.save();
+
         expect(data.start).toBe("01/01/2014");
         expect(data.end).toBe("12/31/2014");
         expect(data.exceptions[0]).toBe("01/05/2014");
         expect(data.rules[0].units[2]).toBe(true);
         expect(data.rules[0].measure).toBe("days");
+    });
+
+    it("should be importable after export if constructed from method chaining with Moment objects and German locale", function() {
+        moment().locale('de');
+        var start = moment("01/01/2014", 'MM/DD/YYYY').dateOnly();
+        var end = moment("12/31/2014", 'MM/DD/YYYY').dateOnly();
+
+        var recurrence = moment(start).recur(end).every(2, "days").except("01/05/2014");
+        var data = recurrence.save();
+
+        var importedRecurrence = moment().recur(data);
+        expect(importedRecurrence.startDate().format("L")).toBe("01/01/2014");
+        expect(importedRecurrence.endDate().format("L")).toBe("12/31/2014");
+        expect(importedRecurrence.rules.length).toBe(1);
+        expect(importedRecurrence.exceptions.length).toBe(1);
+        expect(importedRecurrence.matches("01/03/2014")).toBe(true);
+        expect(importedRecurrence.matches("01/05/2014")).toBe(false);
     });
 });
 
