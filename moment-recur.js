@@ -528,16 +528,16 @@
             var data = {};
 
             if (this.start && moment(this.start).isValid()) {
-                data.start = this.start.format("L");
+                data.start = this.start.format("MM/DD/YYYY");
             }
 
             if (this.end && moment(this.end).isValid()) {
-                data.end = this.end.format("L");
+                data.end = this.end.format("MM/DD/YYYY");
             }
 
             data.exceptions = [];
             for (var i = 0, len = this.exceptions.length; i < len; i++) {
-                data.exceptions.push(this.exceptions[i].format("L"));
+                data.exceptions.push(this.exceptions[i].format("MM/DD/YYYY"));
             }
 
             data.rules = this.rules;
